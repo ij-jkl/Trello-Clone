@@ -1,9 +1,13 @@
 package org.trello.trelloclone.models;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.trello.trelloclone.models.enums.TrackStatus;
 import java.time.LocalDate;
 
+@Getter
+@Setter
 @Entity
 public class Task {
 

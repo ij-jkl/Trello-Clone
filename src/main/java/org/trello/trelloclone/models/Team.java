@@ -1,9 +1,14 @@
 package org.trello.trelloclone.models;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@Setter
 @Entity
 public class Team {
 
@@ -12,6 +17,8 @@ public class Team {
     private Long id;
 
     private String name;
+
+    private String description;
 
     @ManyToMany
     @JoinTable(
