@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.trello.trelloclone.dtos.ResponseObjectJsonDto;
-import org.trello.trelloclone.models.Board;
+import org.trello.trelloclone.dtos.common.ResponseObjectJsonDto;
+import org.trello.trelloclone.dtos.models.BoardRequestDto;
 import org.trello.trelloclone.service.BoardService;
 
 @RestController
@@ -20,8 +20,8 @@ public class BoardController {
     }
 
     @PostMapping("/create_board")
-    public ResponseEntity<ResponseObjectJsonDto> createBoard(@RequestBody Board board) {
-        ResponseObjectJsonDto response = boardService.createBoard(board);
+    public ResponseEntity<ResponseObjectJsonDto> createBoard(@RequestBody BoardRequestDto boardRequestDto) {
+        ResponseObjectJsonDto response = boardService.createBoard(boardRequestDto);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
     }
 
@@ -44,8 +44,8 @@ public class BoardController {
     }
 
     @PutMapping("/update_board_by/{boardId}")
-    public ResponseEntity<ResponseObjectJsonDto> updateBoard(@PathVariable Long boardId, @RequestBody Board board) {
-        ResponseObjectJsonDto response = boardService.updateBoard(boardId, board);
+    public ResponseEntity<ResponseObjectJsonDto> updateBoard(@PathVariable Long boardId, @RequestBody BoardRequestDto boardRequestDto) {
+        ResponseObjectJsonDto response = boardService.updateBoard(boardId, boardRequestDto);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
     }
 

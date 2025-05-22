@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 
 import org.trello.trelloclone.dtos.EntityNotFoundException;
 import org.trello.trelloclone.dtos.InvalidEntityException;
-import org.trello.trelloclone.dtos.ResponseBuilder;
-import org.trello.trelloclone.dtos.ResponseObjectJsonDto;
+import org.trello.trelloclone.dtos.common.ResponseBuilder;
+import org.trello.trelloclone.dtos.common.ResponseObjectJsonDto;
 import org.trello.trelloclone.models.User;
 import org.trello.trelloclone.repository.UserRepository;
 import org.trello.trelloclone.service.UserService;

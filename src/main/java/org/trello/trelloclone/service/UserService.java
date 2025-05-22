@@ -1,6 +1,6 @@
 package org.trello.trelloclone.service;
 
-import org.trello.trelloclone.dtos.ResponseObjectJsonDto;
+import org.trello.trelloclone.dtos.common.ResponseObjectJsonDto;
 import org.trello.trelloclone.models.User;
 
 
