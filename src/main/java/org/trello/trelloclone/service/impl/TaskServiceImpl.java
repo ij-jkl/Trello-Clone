@@ -8,7 +8,7 @@ import org.trello.trelloclone.dtos.EntityNotFoundException;
 import org.trello.trelloclone.dtos.InvalidEntityException;
 import org.trello.trelloclone.dtos.common.ResponseBuilder;
 import org.trello.trelloclone.dtos.common.ResponseObjectJsonDto;
-import org.trello.trelloclone.dtos.models.TaskRequestDto;
+import org.trello.trelloclone.dtos.models.task.TaskRequestDto;
 import org.trello.trelloclone.models.Task;
 import org.trello.trelloclone.models.Board;
 import org.trello.trelloclone.models.User;

@@ -1,7 +1,7 @@
 package org.trello.trelloclone.service;
 
 import org.trello.trelloclone.dtos.common.ResponseObjectJsonDto;
-import org.trello.trelloclone.dtos.models.BoardRequestDto;
+import org.trello.trelloclone.dtos.models.board.BoardRequestDto;
 
 public interface BoardService {
     ResponseObjectJsonDto createBoard(BoardRequestDto boardRequestDto);

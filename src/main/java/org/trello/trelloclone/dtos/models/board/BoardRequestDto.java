@@ -1,4 +1,4 @@
-package org.trello.trelloclone.dtos.models;
+package org.trello.trelloclone.dtos.models.board;
 
 import lombok.Data;
 

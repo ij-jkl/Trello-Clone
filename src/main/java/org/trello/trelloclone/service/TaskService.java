@@ -1,7 +1,7 @@
 package org.trello.trelloclone.service;
 
 import org.trello.trelloclone.dtos.common.ResponseObjectJsonDto;
-import org.trello.trelloclone.dtos.models.TaskRequestDto;
+import org.trello.trelloclone.dtos.models.task.TaskRequestDto;
 
 public interface TaskService {
     ResponseObjectJsonDto createTask(TaskRequestDto taskRequestDto);
