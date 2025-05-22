@@ -15,9 +15,11 @@ import org.trello.trelloclone.repository.BoardRepository;
 import org.trello.trelloclone.repository.TeamRepository;
 import org.trello.trelloclone.service.BoardService;
 
+import java.util.List;
+
 @Service
 @Slf4j
-public abstract class BoardServiceImpl implements BoardService {
+public class BoardServiceImpl implements BoardService {
     private final BoardRepository boardRepository;
     private final TeamRepository teamRepository;
 
@@ -58,6 +60,92 @@ public abstract class BoardServiceImpl implements BoardService {
         }
     }
 
+    @Override
+    public ResponseObjectJsonDto getBoardById(Long id) {
+        try {
+            return boardRepository.findById(id)
+                    .map(board -> ResponseBuilder.buildSuccessResponse(board, "Board found successfully"))
+                    .orElseThrow(() -> new EntityNotFoundException("Board", id));
+        } catch (EntityNotFoundException e) {
+            return ResponseBuilder.buildNotFoundResponse(e.getMessage());
+        } catch (Exception e) {
+            log.error("Error getting board : ", e);
+            return ResponseBuilder.buildErrorResponse(e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseObjectJsonDto getAllBoards() {
+        try {
+            List<Board> boards = boardRepository.findAll();
+            return ResponseBuilder.buildSuccessResponse(boards, "Boards list retrieved successfully");
+        } catch (Exception e) {
+            log.error("Error getting all boards : ", e);
+            return ResponseBuilder.buildErrorResponse(e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseObjectJsonDto getBoardsByTeamId(Long teamId) {
+        try {
+            if (teamId == null) {
+                throw new InvalidEntityException("Team ID is required");
+            }
+            List<Board> boards = boardRepository.findByTeamId(teamId);
+            return ResponseBuilder.buildSuccessResponse(boards, "Team boards retrieved successfully");
+        } catch (InvalidEntityException e) {
+            return ResponseBuilder.buildBadRequestResponse(e.getMessage());
+        } catch (Exception e) {
+            log.error("Error getting boards by team ID : ", e);
+            return ResponseBuilder.buildErrorResponse(e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseObjectJsonDto updateBoard(Long id, BoardRequestDto boardRequestDto) {
+        try {
+            Board updatedBoard = mapToBoard(boardRequestDto);
+            validateBoard(updatedBoard);
+            return boardRepository.findById(id)
+                    .map(board -> {
+                        updateBoardFields(board, updatedBoard);
+                        Board savedBoard = boardRepository.save(board);
+                        return ResponseBuilder.buildSuccessResponse(savedBoard, "Board updated successfully");
+                    })
+                    .orElseThrow(() -> new EntityNotFoundException("Board", id));
+        } catch (EntityNotFoundException e) {
+            return ResponseBuilder.buildNotFoundResponse(e.getMessage());
+        } catch (InvalidEntityException e) {
+            return ResponseBuilder.buildBadRequestResponse(e.getMessage());
+        } catch (Exception e) {
+            log.error("Error updating board: ", e);
+            return ResponseBuilder.buildErrorResponse(e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseObjectJsonDto deleteBoard(Long id) {
+        try {
+            return boardRepository.findById(id)
+                    .map(board -> {
+                        boardRepository.delete(board);
+                        return ResponseBuilder.buildSuccessResponse(null, "Board deleted successfully");
+                    })
+                    .orElseThrow(() -> new EntityNotFoundException("Board", id));
+        } catch (EntityNotFoundException e) {
+            return ResponseBuilder.buildNotFoundResponse(e.getMessage());
+        } catch (Exception e) {
+            log.error("Error deleting board: ", e);
+            return ResponseBuilder.buildErrorResponse(e.getMessage());
+        }
+    }
+
+    private void updateBoardFields(Board board, Board updatedBoard) {
+        board.setTitle(updatedBoard.getTitle());
+        board.setDescription(updatedBoard.getDescription());
+        board.setTeam(updatedBoard.getTeam());
+    }
+
     private void validateBoard(Board board) throws InvalidEntityException {
         if (board.getTitle() == null || board.getTitle().isEmpty()) {
             throw new InvalidEntityException("Board title cannot be null or empty");
@@ -67,5 +155,4 @@ public abstract class BoardServiceImpl implements BoardService {
         }
     }
 }
-
 
