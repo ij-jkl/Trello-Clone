@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.trello.trelloclone.dtos.common.ResponseObjectJsonDto;
+import org.trello.trelloclone.dtos.models.TaskRequestDto;
 import org.trello.trelloclone.models.Task;
 import org.trello.trelloclone.service.TaskService;
 
@@ -20,8 +21,8 @@ public class TaskController {
     }
 
     @PostMapping("/create_task")
-    public ResponseEntity<ResponseObjectJsonDto> createTask(@RequestBody Task task) {
-        ResponseObjectJsonDto response = taskService.createTask(task);
+    public ResponseEntity<ResponseObjectJsonDto> createTask(@RequestBody TaskRequestDto taskRequestDto) {
+        ResponseObjectJsonDto response = taskService.createTask(taskRequestDto);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
     }
 
@@ -50,8 +51,8 @@ public class TaskController {
     }
 
     @PutMapping("/update_task_by_{id}")
-    public ResponseEntity<ResponseObjectJsonDto> updateTask(@PathVariable Long id, @RequestBody Task task) {
-        ResponseObjectJsonDto response = taskService.updateTask(id, task);
+    public ResponseEntity<ResponseObjectJsonDto> updateTask(@PathVariable Long id, @RequestBody TaskRequestDto taskRequestDto) {
+        ResponseObjectJsonDto response = taskService.updateTask(id, taskRequestDto);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
     }
 
