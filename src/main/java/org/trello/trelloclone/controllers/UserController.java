@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.trello.trelloclone.dtos.ResponseObjectJsonDto;
-import org.trello.trelloclone.models.User;
+import org.trello.trelloclone.dtos.common.ResponseObjectJsonDto;
+import org.trello.trelloclone.dto.UserDto;
 import org.trello.trelloclone.service.UserService;
 
 @RestController
@@ -20,8 +20,8 @@ public class UserController {
     }
 
     @PostMapping("/create_user")
-    public ResponseEntity<ResponseObjectJsonDto> createUser(@RequestBody User user) {
-        ResponseObjectJsonDto response = userService.createUser(user);
+    public ResponseEntity<ResponseObjectJsonDto> createUser(@RequestBody UserDto userDto) {
+        ResponseObjectJsonDto response = userService.createUser(userDto);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
     }
 
@@ -44,8 +44,8 @@ public class UserController {
     }
 
     @PutMapping("/update_user_by_{id}")
-    public ResponseEntity<ResponseObjectJsonDto> updateUser(@PathVariable Long id, @RequestBody User user) {
-        ResponseObjectJsonDto response = userService.updateUser(id, user);
+    public ResponseEntity<ResponseObjectJsonDto> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
+        ResponseObjectJsonDto response = userService.updateUser(id, userDto);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
     }
 

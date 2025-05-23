@@ -1,4 +1,4 @@
-package org.trello.trelloclone.dtos;
+package org.trello.trelloclone.dtos.common;
 
 import lombok.experimental.UtilityClass;
 

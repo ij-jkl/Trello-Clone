@@ -1,15 +1,14 @@
 package org.trello.trelloclone.service;
 
-import org.trello.trelloclone.dtos.ResponseObjectJsonDto;
-import org.trello.trelloclone.models.Task;
-
+import org.trello.trelloclone.dtos.common.ResponseObjectJsonDto;
+import org.trello.trelloclone.dtos.models.task.TaskRequestDto;
 
 public interface TaskService {
-    ResponseObjectJsonDto createTask(Task task);
+    ResponseObjectJsonDto createTask(TaskRequestDto taskRequestDto);
     ResponseObjectJsonDto getTaskById(Long id);
     ResponseObjectJsonDto getAllTasks();
     ResponseObjectJsonDto getTasksByBoardId(Long boardId);
     ResponseObjectJsonDto getTasksByAssignedUserId(Long userId);
-    ResponseObjectJsonDto updateTask(Long id, Task updatedTask);
+    ResponseObjectJsonDto updateTask(Long id, TaskRequestDto taskRequestDto);
     ResponseObjectJsonDto deleteTask(Long id);
 }

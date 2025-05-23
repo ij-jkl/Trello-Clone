@@ -6,10 +6,16 @@ import org.springframework.stereotype.Service;
 
 import org.trello.trelloclone.dtos.EntityNotFoundException;
 import org.trello.trelloclone.dtos.InvalidEntityException;
-import org.trello.trelloclone.dtos.ResponseBuilder;
-import org.trello.trelloclone.dtos.ResponseObjectJsonDto;
+import org.trello.trelloclone.dtos.common.ResponseBuilder;
+import org.trello.trelloclone.dtos.common.ResponseObjectJsonDto;
+import org.trello.trelloclone.dtos.models.task.TaskRequestDto;
 import org.trello.trelloclone.models.Task;
+import org.trello.trelloclone.models.Board;
+import org.trello.trelloclone.models.User;
+import org.trello.trelloclone.models.enums.TrackStatus;
 import org.trello.trelloclone.repository.TaskRepository;
+import org.trello.trelloclone.repository.BoardRepository;
+import org.trello.trelloclone.repository.UserRepository;
 import org.trello.trelloclone.service.TaskService;
 
 import java.util.List;
@@ -18,25 +24,47 @@ import java.util.List;
 @Slf4j
 public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
+    private final BoardRepository boardRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public TaskServiceImpl(TaskRepository taskRepository) {
+    public TaskServiceImpl(TaskRepository taskRepository, BoardRepository boardRepository, UserRepository userRepository) {
         this.taskRepository = taskRepository;
+        this.boardRepository = boardRepository;
+        this.userRepository = userRepository;
+    }
+
+    private Task mapToTask(TaskRequestDto dto) {
+        Task task = new Task();
+        task.setTitle(dto.getTitle());
+        task.setDescription(dto.getDescription());
+        if (dto.getStatus() != null) {
+            task.setStatus(TrackStatus.valueOf(dto.getStatus()));
+        }
+        if (dto.getBoardId() != null) {
+            Board board = boardRepository.findById(dto.getBoardId())
+                .orElseThrow(() -> new InvalidEntityException("Board not found with id: " + dto.getBoardId()));
+            task.setBoard(board);
+        }
+        if (dto.getAssignedToUserId() != null) {
+            User user = userRepository.findById(dto.getAssignedToUserId())
+                .orElseThrow(() -> new InvalidEntityException("User not found with id: " + dto.getAssignedToUserId()));
+            task.setAssignedTo(user);
+        }
+        task.setDueDate(dto.getDueDate());
+        return task;
     }
 
     @Override
-    public ResponseObjectJsonDto createTask(Task task) {
+    public ResponseObjectJsonDto createTask(TaskRequestDto taskRequestDto) {
         try {
-
+            Task task = mapToTask(taskRequestDto);
             validateTask(task);
             Task savedTask = taskRepository.save(task);
-
             return ResponseBuilder.buildCreatedResponse(savedTask, "Task created successfully");
         } catch (InvalidEntityException e) {
-
             return ResponseBuilder.buildBadRequestResponse(e.getMessage());
         } catch (Exception e) {
-
             log.error("Error creating task : ", e);
             return ResponseBuilder.buildErrorResponse(e.getMessage());
         }
@@ -112,26 +140,20 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public ResponseObjectJsonDto updateTask(Long id, Task updatedTask) {
+    public ResponseObjectJsonDto updateTask(Long id, TaskRequestDto taskRequestDto) {
         try {
+            Task updatedTask = mapToTask(taskRequestDto);
             validateTask(updatedTask);
-
             return taskRepository.findById(id)
                     .map(task -> {
                         updateTaskFields(task, updatedTask);
                         Task savedTask = taskRepository.save(task);
                         return ResponseBuilder.buildSuccessResponse(savedTask, "Task updated successfully");
                     })
-                    .orElseThrow(() -> new EntityNotFoundException("Task", id));
-
-        } catch (EntityNotFoundException e) {
-
-            return ResponseBuilder.buildNotFoundResponse(e.getMessage());
+                    .orElseThrow(() -> new InvalidEntityException("Task not found with id: " + id));
         } catch (InvalidEntityException e) {
-
             return ResponseBuilder.buildBadRequestResponse(e.getMessage());
         } catch (Exception e) {
-
             log.error("Error updating task : ", e);
             return ResponseBuilder.buildErrorResponse(e.getMessage());
         }
@@ -177,3 +199,4 @@ public class TaskServiceImpl implements TaskService {
         existingTask.setAssignedTo(updatedTask.getAssignedTo());
     }
 }
+

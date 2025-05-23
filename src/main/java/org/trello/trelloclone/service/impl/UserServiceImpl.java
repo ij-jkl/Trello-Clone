@@ -6,14 +6,16 @@ import org.springframework.stereotype.Service;
 
 import org.trello.trelloclone.dtos.EntityNotFoundException;
 import org.trello.trelloclone.dtos.InvalidEntityException;
-import org.trello.trelloclone.dtos.ResponseBuilder;
-import org.trello.trelloclone.dtos.ResponseObjectJsonDto;
+import org.trello.trelloclone.dtos.common.ResponseBuilder;
+import org.trello.trelloclone.dtos.common.ResponseObjectJsonDto;
 import org.trello.trelloclone.models.User;
+import org.trello.trelloclone.models.Team;
+import org.trello.trelloclone.dto.UserDto;
 import org.trello.trelloclone.repository.UserRepository;
 import org.trello.trelloclone.service.UserService;
 
 import java.util.List;
-
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -25,28 +27,43 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
     }
 
-    @Override
-    public ResponseObjectJsonDto createUser(User user) {
-        try {
+    private UserDto toDto(User user) {
+        UserDto dto = new UserDto();
+        dto.setId(user.getId());
+        dto.setName(user.getName());
+        dto.setEmail(user.getEmail());
+        if (user.getTeams() != null) {
+            dto.setTeamIds(user.getTeams().stream().map(Team::getId).collect(Collectors.toList()));
+        }
+        return dto;
+    }
 
-            if (user.getName() == null || user.getName().trim().isEmpty()) {
+    private User toEntity(UserDto dto) {
+        User user = new User();
+        user.setId(dto.getId());
+        user.setName(dto.getName());
+        user.setEmail(dto.getEmail());
+        return user;
+    }
+
+    @Override
+    public ResponseObjectJsonDto createUser(UserDto userDto) {
+        try {
+            if (userDto.getName() == null || userDto.getName().trim().isEmpty()) {
                 throw new InvalidEntityException("User name is required");
             }
-            if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
+            if (userDto.getEmail() == null || userDto.getEmail().trim().isEmpty()) {
                 throw new InvalidEntityException("User email is required");
             }
-            if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {
-                throw new InvalidEntityException("User password is required");
-            }
 
+            User user = toEntity(userDto);
             User savedUser = userRepository.save(user);
-            return ResponseBuilder.buildCreatedResponse(savedUser, "User created successfully");
+            return ResponseBuilder.buildCreatedResponse(toDto(savedUser), "User created successfully");
 
         } catch (InvalidEntityException e) {
 
             return ResponseBuilder.buildBadRequestResponse(e.getMessage());
         } catch (Exception e) {
-
             log.error("Error creating user: ", e);
             return ResponseBuilder.buildErrorResponse(e.getMessage());
         }
@@ -55,11 +72,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseObjectJsonDto getUserById(Long id) {
         try {
-
             return userRepository.findById(id)
-                    .map(user -> ResponseBuilder.buildSuccessResponse(user, "User found successfully"))
+                    .map(user -> ResponseBuilder.buildSuccessResponse(toDto(user), "User found successfully"))
                     .orElseThrow(() -> new EntityNotFoundException("User ", id));
-
         } catch (EntityNotFoundException e) {
 
             return ResponseBuilder.buildNotFoundResponse(e.getMessage());
@@ -73,9 +88,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseObjectJsonDto getAllUsers() {
         try {
-
             List<User> users = userRepository.findAll();
-            return ResponseBuilder.buildSuccessResponse(users, "Users list retrieved successfully");
+            List<UserDto> dtos = users.stream().map(this::toDto).collect(Collectors.toList());
+            return ResponseBuilder.buildSuccessResponse(dtos, "Users list retrieved successfully");
         } catch (Exception e) {
 
             log.error("Error getting all users : ", e);
@@ -84,30 +99,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseObjectJsonDto updateUser(Long id, User updatedUser) {
+    public ResponseObjectJsonDto updateUser(Long id, UserDto updatedUserDto) {
         try {
-
-            if (updatedUser.getName() == null || updatedUser.getName().trim().isEmpty()) {
+            if (updatedUserDto.getName() == null || updatedUserDto.getName().trim().isEmpty()) {
                 throw new InvalidEntityException("User name is required");
             }
-            if (updatedUser.getEmail() == null || updatedUser.getEmail().trim().isEmpty()) {
+            if (updatedUserDto.getEmail() == null || updatedUserDto.getEmail().trim().isEmpty()) {
                 throw new InvalidEntityException("User email is required");
             }
-
             return userRepository.findById(id)
                     .map(user -> {
-                        user.setName(updatedUser.getName());
-                        user.setEmail(updatedUser.getEmail());
-                        if (updatedUser.getPassword() != null && !updatedUser.getPassword().trim().isEmpty()) {
-                            user.setPassword(updatedUser.getPassword());
-                        }
+                        user.setName(updatedUserDto.getName());
+                        user.setEmail(updatedUserDto.getEmail());
                         User savedUser = userRepository.save(user);
-                        return ResponseBuilder.buildSuccessResponse(savedUser, "User updated successfully");
+                        return ResponseBuilder.buildSuccessResponse(toDto(savedUser), "User updated successfully");
                     })
                     .orElseThrow(() -> new EntityNotFoundException("User", id));
-
         } catch (EntityNotFoundException e) {
-
             return ResponseBuilder.buildNotFoundResponse(e.getMessage());
         } catch (InvalidEntityException e) {
 
@@ -147,7 +155,7 @@ public class UserServiceImpl implements UserService {
             }
 
             return userRepository.findByEmail(email)
-                    .map(user -> ResponseBuilder.buildSuccessResponse(user, "User found successfully"))
+                    .map(user -> ResponseBuilder.buildSuccessResponse(toDto(user), "User found successfully"))
                     .orElse(ResponseBuilder.buildNotFoundResponse("User not found with email : " + email));
 
         } catch (InvalidEntityException e) {

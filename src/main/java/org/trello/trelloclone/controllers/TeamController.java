@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.trello.trelloclone.dtos.ResponseObjectJsonDto;
-import org.trello.trelloclone.models.Team;
+import org.trello.trelloclone.dtos.common.ResponseObjectJsonDto;
+import org.trello.trelloclone.dto.TeamDto;
 import org.trello.trelloclone.service.TeamService;
 
 @RestController
@@ -20,8 +20,8 @@ public class TeamController {
     }
 
     @PostMapping("/create_team")
-    public ResponseEntity<ResponseObjectJsonDto> createTeam(@RequestBody Team team) {
-        ResponseObjectJsonDto response = teamService.createTeam(team);
+    public ResponseEntity<ResponseObjectJsonDto> createTeam(@RequestBody TeamDto teamDto) {
+        ResponseObjectJsonDto response = teamService.createTeam(teamDto);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
     }
 
@@ -38,8 +38,8 @@ public class TeamController {
     }
 
     @PutMapping("/update_team_by_{id}")
-    public ResponseEntity<ResponseObjectJsonDto> updateTeam(@PathVariable Long id, @RequestBody Team team) {
-        ResponseObjectJsonDto response = teamService.updateTeam(id, team);
+    public ResponseEntity<ResponseObjectJsonDto> updateTeam(@PathVariable Long id, @RequestBody TeamDto teamDto) {
+        ResponseObjectJsonDto response = teamService.updateTeam(id, teamDto);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
     }
 
